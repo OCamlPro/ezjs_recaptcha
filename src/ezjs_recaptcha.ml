@@ -21,10 +21,11 @@ class type grecaptcha  = object
   method render : Js.js_string Js.t -> param Js.t -> unit Js.meth
 end
 
-let recaptcha : grecaptcha Js.t = Js.Unsafe.variable "grecaptcha"
+let recaptcha () : grecaptcha Js.t = Js.Unsafe.variable "grecaptcha"
 
 module V3 = struct
   let check ?(action="login") site_key f =
+    let recaptcha = recaptcha () in
     recaptcha##ready (fun () ->
         let a : input Js.t = Js.Unsafe.obj [||] in
         a##.action := Js.string action ;
@@ -50,5 +51,5 @@ module V2 = struct
     parameters##.size := Js.string @@ data_size_to_string data_size ;
 
     Js.Unsafe.global##.onloadCallback :=
-      (fun () -> recaptcha##render elt_id parameters)
+      (fun () -> (recaptcha ())##render elt_id parameters)
 end
